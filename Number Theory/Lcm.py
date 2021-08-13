@@ -13,5 +13,7 @@ def main():
     a = int(input())
     b = int(input())
     print(Lcm(a , b))
+    
+    # just for check. edited by iqbal
 main()
     
