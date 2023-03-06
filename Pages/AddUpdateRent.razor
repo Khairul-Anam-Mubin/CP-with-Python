@@ -1,0 +1,66 @@
+@page "/add-rent"
+@page "/update-rent/{rentId:string}"
+
+@using RentAdvertisementSystem.Models;
+@using RentAdvertisementSystem.Services;
+@inject UserService UserService
+@inject RentService RentService
+@inject NavigationManager NavigationManager
+@inject LocalStorage LocalStorage
+
+<PageTitle>@Title Rent</PageTitle>
+
+<h1>@Title Rent</h1>
+<EditForm Model="@rentItem" OnValidSubmit="OnSubmit">
+    <div class="form-group">
+        <label>Rent Name</label>
+        <InputText class="form-control" placeholder="Rent Name" @bind-Value="rentItem.Name"/>
+    </div>
+    <div class="form-group">
+        <label>Rent Type</label>
+        <InputText class="form-control" placeholder="Rent Type" @bind-Value="rentItem.Type"/>
+    </div>
+    <div class="form-group">
+        <label>Rent Location</label>
+        <InputText class="form-control" placeholder="Rent Location" @bind-Value="rentItem.Location"/>
+    </div>
+    <div class="form-group">
+        <label>Rent Amount</label>
+        <InputText class="form-control" placeholder="Rent Amount" @bind-Value="amount"/>
+    </div>
+    <div class="form-group">
+        <label>Rent Description</label>
+        <InputText class="form-control" placeholder="Rent Description" @bind-Value="rentItem.Description"/>
+    </div>
+    <button type="submit" class="btn btn-primary">Add Update</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public string rentId {get; set;}
+    protected string Title = "Add";
+    protected RentItem rentItem = new RentItem();
+    protected UserModel userModel = new UserModel();
+    protected string amount = "";
+    protected override async Task OnInitializedAsync()    
+    {
+        if (!string.IsNullOrEmpty(rentId))
+        {
+            Title = "Update";
+            rentItem = RentService.GetRentItemById(rentId);
+        }
+        var email = await LocalStorage.GetStringAsync("email");
+        userModel = UserService.GetUserByEmail(email);
+    }
+    protected async Task OnSubmit()
+    {
+        rentItem.UserId = userModel.Id;
+        rentItem.PostedAt = DateTime.UtcNow;
+        if (string.IsNullOrEmpty(amount))
+        {
+            amount = "0";
+        }
+        rentItem.Value = double.Parse(amount);
+        RentService.PostRentItem(rentItem);
+    }
+}

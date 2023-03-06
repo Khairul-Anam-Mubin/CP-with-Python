@@ -1,0 +1,49 @@
+@page "/manage-rents"
+@using RentAdvertisementSystem.Models;
+@using RentAdvertisementSystem.Services;
+@inject UserService UserService
+@inject RentService RentService
+@inject NavigationManager NavigationManager
+@inject LocalStorage LocalStorage
+
+<PageTitle>Manage Rents</PageTitle>
+
+<h1>Manage Rents</h1>
+
+<NavLink class="btn btn-primary" href='/add-rent'>Add Rents</NavLink>
+
+@foreach (var rentItem in rentItems)
+{
+    <div class="card mb-3">
+    <img src="..." class="card-img-top" alt="...">
+    <div class="card-body">
+        <h5 class="card-title"> @rentItem.Name</h5>
+        <p class="card-text">Rent Type : @rentItem.Type</p>
+        <p class="card-text">Rent Location : @rentItem.Location</p>
+        <p class="card-text">Rent Amount : @rentItem.Value</p>
+        <p class="card-text">Rent Type : @rentItem.Description </p>
+        <p class="card-text"><small class="text-muted">Posted : @rentItem.PostedAt</small></p>
+        <NavLink href='/update-rent/@rentItem.Id' class="btn btn-primary">Edit</NavLink>
+    </div>
+    </div>
+}
+<div class="card mb-3">
+  <img src="..." class="card-img-top" alt="...">
+  <div class="card-body">
+    <h5 class="card-title">Card title</h5>
+    <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+    <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+  </div>
+</div>
+
+@code {
+    protected List<RentItem> rentItems = new List<RentItem>();
+    protected UserModel userModel = new UserModel();
+    protected override async Task OnInitializedAsync()
+    {
+        var email = await LocalStorage.GetStringAsync("email");
+        userModel = UserService.GetUserByEmail(email);
+        rentItems = RentService.GetUserRentItems(userModel.Id);
+    }
+
+}
